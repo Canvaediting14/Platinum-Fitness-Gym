@@ -1,0 +1,6 @@
+{
+  "appId": "com.platinumfitness.gym",
+  "appName": "Platinum Fitness Gym",
+  "webDir": "dist",
+  "bundledWebRuntime": false
+}

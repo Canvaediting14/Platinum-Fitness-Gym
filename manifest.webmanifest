@@ -1,0 +1,10 @@
+{
+  "name": "Platinum Fitness Gym",
+  "short_name": "Platinum Gym",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#111111",
+  "theme_color": "#ff4b00",
+  "description": "Gym members, fees and renewals in one place",
+  "icons": []
+}
