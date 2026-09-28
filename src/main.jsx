@@ -175,22 +175,25 @@ function Members({members,onAdd,onEdit,onDelete,onRenew,onSelect}){const [q,setQ
 
 function MemberForm({member,close,save}){const [f,setF]=useState(member||{name:'',phone:'',plan:'Monthly',fee:1500,start:today(),expiry:addDays(today(),30)});function set(k,v){setF({...f,[k]:v})}function plan(v){setF({...f,plan:v,expiry:addDays(f.start||today(),PLAN_DAYS[v])})}return <div className="overlay"><div className="modal"><header><h2>{member?'Edit Member':'Add Member'}</h2><button onClick={close}>×</button></header><label>Name<input value={f.name} onChange={e=>set('name',e.target.value)} /></label><label>Phone<input value={f.phone} onChange={e=>set('phone',e.target.value)} /></label><label>Plan<select value={f.plan} onChange={e=>plan(e.target.value)}>{Object.keys(PLAN_DAYS).map(x=><option key={x}>{x}</option>)}</select></label><label>Fee<input type="number" value={f.fee} onChange={e=>set('fee',e.target.value)} /></label><label>Start date<input type="date" value={f.start} onChange={e=>{set('start',e.target.value);set('expiry',addDays(e.target.value,PLAN_DAYS[f.plan]))}} /></label><label>Expiry date<input type="date" value={f.expiry} onChange={e=>set('expiry',e.target.value)} /></label><button className="primary" onClick={()=>save(f)}>SAVE MEMBER</button></div></div>}
 function MemberModal({member,close,renew,edit,delete:del}){return <div className="overlay"><div className="modal"><header><div><div className="avatar big">{initials(member.name)}</div><h2>{member.name}</h2></div><button onClick={close}>×</button></header><div className="details"><p><b>Phone</b><span>{member.phone}</span></p><p><b>Plan</b><span>{member.plan}</span></p><p><b>Fee</b><span>{money(member.fee)}</span></p><p><b>Start</b><span>{member.start}</span></p><p><b>Expiry</b><span>{member.expiry}</span></p><p><b>Status</b><span><Status status={statusFor(member.expiry)}/></span></p></div><div className="actions"><button
+  <button
   className="primary"
   onClick={() => {
-    const days = PLAN_DAYS[m.plan] || 30;
+    const days = PLAN_DAYS[selected.plan] || 30;
     const todayDate = today();
+
     const baseDate =
-      m.expiry && m.expiry >= todayDate
-        ? m.expiry
+      selected.expiry && selected.expiry >= todayDate
+        ? selected.expiry
         : todayDate;
+
     const newExpiry = addDays(baseDate, days);
 
     if (
       window.confirm(
-        `Renew ${m.name}?\n\nCurrent expiry: ${m.expiry}\nNew expiry: ${newExpiry}\nAmount: ₹${Number(m.fee).toLocaleString("en-IN")}`
+        `Renew ${selected.name}?\n\nCurrent expiry: ${selected.expiry}\nNew expiry: ${newExpiry}\nAmount: ₹${Number(selected.fee).toLocaleString("en-IN")}`
       )
     ) {
-      renew(m);
+      renew(selected);
     }
   }}
 >
