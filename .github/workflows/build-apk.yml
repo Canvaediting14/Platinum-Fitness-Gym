@@ -23,10 +23,13 @@ jobs:
       - name: Build web app
         run: npm run build
 
-      - name: Add Android project
-        run: |
-          npx cap add android
-          npx cap sync android
+       - name: Install Capacitor Android
+  run: npm install @capacitor/core @capacitor/cli @capacitor/android
+
+        - name: Add Android project
+  run: |
+    npx cap add android
+    npx cap sync android
 
       - name: Setup Java
         uses: actions/setup-java@v4
