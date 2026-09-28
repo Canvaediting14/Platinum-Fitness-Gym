@@ -3,12 +3,12 @@ import { getAuth } from 'firebase/auth'
 import { getFirestore } from 'firebase/firestore'
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  apiKey: "AIzaSyBXPskQPKEa39pBVtGnATtG3oYf2UyKPks",
+  authDomain: "platinum-fitness-gym.firebaseapp.com",
+  projectId: "platinum-fitness-gym",
+  storageBucket: "platinum-fitness-gym.firebasestorage.app",
+  messagingSenderId: "820796652011",
+  appId: "1:820796652011:web:47fe348f353d32830801ae"
 }
 
 export const firebaseReady = Object.values(firebaseConfig).every(Boolean)
