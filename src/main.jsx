@@ -80,13 +80,63 @@ function App(){
     }catch(e){setError(e.message)}
   }
   async function renew(m){
-    const start = today(); const expiry=addDays(start,PLAN_DAYS[m.plan]||30)
-    const updated={...m,start,expiry,status:'active'}
-    try{
-      if(firebaseReady && user){ await updateDoc(doc(db,'members',m.id),{start,expiry,updatedAt:serverTimestamp()}); await addDoc(collection(db,'payments'),{ownerId:user.uid,memberId:m.id,amount:Number(m.fee),date:start,type:'renewal',createdAt:serverTimestamp()}) }
-      else { setMembers(x=>x.map(a=>a.id===m.id?updated:a)); setPayments(x=>[...x,{id:`p${Date.now()}`,amount:m.fee,date:start}]) }
-    }catch(e){setError(e.message)}
+  const todayDate = today();
+
+  const baseDate =
+    m.expiry && m.expiry >= todayDate
+      ? m.expiry
+      : todayDate;
+
+  const start = todayDate;
+  const expiry = addDays(baseDate, PLAN_DAYS[m.plan] || 30);
+
+  const updated = {
+    ...m,
+    start,
+    expiry,
+    status: 'active'
+  };
+
+  try {
+    if (firebaseReady && user) {
+      await updateDoc(
+        doc(db, 'members', m.id),
+        {
+          start,
+          expiry,
+          updatedAt: serverTimestamp()
+        }
+      );
+
+      await addDoc(
+        collection(db, 'payments'),
+        {
+          ownerId: user.uid,
+          memberId: m.id,
+          memberName: m.name,
+          amount: Number(m.fee) || 0,
+          date: todayDate,
+          createdAt: serverTimestamp()
+        }
+      );
+    } else {
+      setMembers(x =>
+        x.map(a => a.id === m.id ? updated : a)
+      );
+
+      setPayments(x => [
+        ...x,
+        {
+          id: `p${Date.now()}`,
+          amount: Number(m.fee) || 0,
+          date: todayDate
+        }
+      ]);
+    }
+  } catch(e) {
+    setError(e.message);
   }
+}
   async function remove(m){ if(!confirm(`Delete ${m.name}?`)) return; try{ if(firebaseReady&&user) await deleteDoc(doc(db,'members',m.id)); else setMembers(x=>x.filter(a=>a.id!==m.id)); setSelected(null) }catch(e){setError(e.message)} }
   async function saveSettings(){ if(firebaseReady&&user) await setDoc(doc(db,'settings',user.uid),settings,{merge:true}) }
 
