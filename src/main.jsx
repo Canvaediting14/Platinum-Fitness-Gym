@@ -111,13 +111,14 @@ function App(){
       await addDoc(
         collection(db, 'payments'),
         {
-          ownerId: user.uid,
-          memberId: m.id,
-          memberName: m.name,
-          amount: Number(m.fee) || 0,
-          date: todayDate,
-          createdAt: serverTimestamp()
-        }
+  ownerId: user.uid,
+  memberId: m.id,
+  memberName: m.name,
+  amount: Number(m.fee) || 0,
+  date: todayDate,
+  type: 'renewal',
+  createdAt: serverTimestamp()
+}
       );
     } else {
       setMembers(x =>
