@@ -62,8 +62,7 @@ function App(){
   const expiring=normalized.filter(m=>m.status==='expiring').length
   const expired=normalized.filter(m=>m.status==='expired').length
   const collected=payments.reduce((a,p)=>a+Number(p.amount||0),0)
-  const revenue=normalized.filter(m=>m.status!=='expired').reduce((a,m)=>a+Number(m.fee||0),0)
-
+ const revenue=payments.filter(p=>(p.date||'').startsWith(today().slice(0,7))).reduce((a,p)=>a+Number(p.amount||0),0)
   async function saveMember(data){
     setError('')
     if(!data.name || !data.phone || !data.fee) return setError('Name, phone and fee are required.')
