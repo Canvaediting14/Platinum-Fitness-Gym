@@ -174,31 +174,61 @@ function Payments({payments,members}){const rows=[...payments].sort((a,b)=>Strin
 function Members({members,onAdd,onEdit,onDelete,onRenew,onSelect}){const [q,setQ]=useState(''),[filter,setFilter]=useState('all');const list=members.filter(m=>(filter==='all'||m.status===filter)&&(m.name.toLowerCase().includes(q.toLowerCase())||m.phone.includes(q)));return <div className="page"><header className="pagehead"><h1>Members</h1><button className="add" onClick={onAdd}>+ ADD</button></header><input className="search" placeholder="Search by name or phone" value={q} onChange={e=>setQ(e.target.value)}/><div className="filters">{['all','active','expiring','expired'].map(x=><button className={filter===x?'selected':''} onClick={()=>setFilter(x)} key={x}>{x[0].toUpperCase()+x.slice(1)}</button>)}</div><div className="list">{list.map(m=><article className="card" key={m.id} onClick={()=>onSelect(m)}><div className="avatar">{initials(m.name)}</div><div className="memberinfo"><strong>{m.name}</strong><small>{m.phone} • {m.plan} • {money(m.fee)}</small><small>{m.status==='expired'?`Expired ${Math.abs(daysLeft(m.expiry))}d ago`:`${Math.max(0,daysLeft(m.expiry))}d left`}</small></div><Status status={m.status}/></article>)}{!list.length&&<div className="empty">No members found.</div>}</div></div>}
 
 function MemberForm({member,close,save}){const [f,setF]=useState(member||{name:'',phone:'',plan:'Monthly',fee:1500,start:today(),expiry:addDays(today(),30)});function set(k,v){setF({...f,[k]:v})}function plan(v){setF({...f,plan:v,expiry:addDays(f.start||today(),PLAN_DAYS[v])})}return <div className="overlay"><div className="modal"><header><h2>{member?'Edit Member':'Add Member'}</h2><button onClick={close}>×</button></header><label>Name<input value={f.name} onChange={e=>set('name',e.target.value)} /></label><label>Phone<input value={f.phone} onChange={e=>set('phone',e.target.value)} /></label><label>Plan<select value={f.plan} onChange={e=>plan(e.target.value)}>{Object.keys(PLAN_DAYS).map(x=><option key={x}>{x}</option>)}</select></label><label>Fee<input type="number" value={f.fee} onChange={e=>set('fee',e.target.value)} /></label><label>Start date<input type="date" value={f.start} onChange={e=>{set('start',e.target.value);set('expiry',addDays(e.target.value,PLAN_DAYS[f.plan]))}} /></label><label>Expiry date<input type="date" value={f.expiry} onChange={e=>set('expiry',e.target.value)} /></label><button className="primary" onClick={()=>save(f)}>SAVE MEMBER</button></div></div>}
-function MemberModal({member,close,renew,edit,delete:del}){return <div className="overlay"><div className="modal"><header><div><div className="avatar big">{initials(member.name)}</div><h2>{member.name}</h2></div><button onClick={close}>×</button></header><div className="details"><p><b>Phone</b><span>{member.phone}</span></p><p><b>Plan</b><span>{member.plan}</span></p><p><b>Fee</b><span>{money(member.fee)}</span></p><p><b>Start</b><span>{member.start}</span></p><p><b>Expiry</b><span>{member.expiry}</span></p><p><b>Status</b><span><Status status={statusFor(member.expiry)}/></span></p></div><div className="actions"><button
-  <button
-  className="primary"
-  onClick={() => {
-    const days = PLAN_DAYS[selected.plan] || 30;
-    const todayDate = today();
+function MemberModal({member,close,renew,edit,delete:del}){
+  const days = PLAN_DAYS[member.plan] || 30;
+  const todayDate = today();
 
-    const baseDate =
-      selected.expiry && selected.expiry >= todayDate
-        ? selected.expiry
-        : todayDate;
+  const baseDate =
+    member.expiry && member.expiry >= todayDate
+      ? member.expiry
+      : todayDate;
 
-    const newExpiry = addDays(baseDate, days);
+  const newExpiry = addDays(baseDate, days);
 
-    if (
-      window.confirm(
-        `Renew ${selected.name}?\n\nCurrent expiry: ${selected.expiry}\nNew expiry: ${newExpiry}\nAmount: ₹${Number(selected.fee).toLocaleString("en-IN")}`
-      )
-    ) {
-      renew(selected);
+  const handleRenew = () => {
+    const ok = window.confirm(
+      `Renew ${member.name}?\n\nCurrent expiry: ${member.expiry}\nNew expiry: ${newExpiry}\nAmount: ₹${Number(member.fee).toLocaleString("en-IN")}`
+    );
+
+    if (ok) {
+      renew(member);
     }
-  }}
->
-  RENEW
-</button><button className="secondary" onClick={edit}>EDIT</button><button className="danger" onClick={del}>DELETE</button></div></div></div>}
+  };
+
+  return (
+    <div className="overlay">
+      <div className="modal">
+        <header>
+          <button onClick={close}>←</button>
+          <h2>{member.name}</h2>
+        </header>
+
+        <div className="details">
+          <p><strong>Phone</strong> {member.phone}</p>
+          <p><strong>Plan</strong> {member.plan}</p>
+          <p><strong>Fee</strong> ₹{Number(member.fee).toLocaleString("en-IN")}</p>
+          <p><strong>Start</strong> {member.start}</p>
+          <p><strong>Expiry</strong> {member.expiry}</p>
+          <p><strong>Status</strong> {member.status}</p>
+        </div>
+
+        <button className="primary" onClick={handleRenew}>
+          RENEW
+        </button>
+
+        <button className="secondary" onClick={edit}>
+          EDIT
+        </button>
+
+        <button className="danger" onClick={del}>
+          DELETE
+        </button>
+      </div>
+    </div>
+  );
+}
+
+    
 function Settings({settings,setSettings,save,user,signOut,demo}){return <div className="page settings"><h1>Settings</h1><p>{settings.gymName}</p><h3>ACCOUNT</h3><div className="settingcard"><div className="avatar">@</div><div><b>Signed in as</b><small>{demo?'Demo mode':user?.email}</small></div></div><h3>GYM</h3><label>Gym name<input value={settings.gymName||''} onChange={e=>setSettings({...settings,gymName:e.target.value})}/></label><button className="primary" onClick={save}>SAVE SETTINGS</button><h3>ABOUT</h3><div className="settingcard"><div className="avatar">i</div><div><b>Platinum Fitness Gym</b><small>Members, fees & renewals in one place • v2.0</small></div></div>{!demo&&<button className="danger wide" onClick={signOut}>SIGN OUT</button>}</div>}
 
 createRoot(document.getElementById('root')).render(<App />)
